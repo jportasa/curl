@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  dbhost:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - ./config/docker-db:/docker-entrypoint-initdb.d
+
+  backend:
+    build:
+      context: ../flask
+      dockerfile: config/docker-backend/Dockerfile
+    image: python-backend:latest
+    command: python app/app.py
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - MYSQL_USER=waki
+      - MYSQL_PASS=waki
+      - MYSQL_HOST=dbhost
+      - MYSQL_DB=db
+    depends_on:
+      - dbhost
+
+volumes:
+  db_data: {}
+
+
+
+
+
